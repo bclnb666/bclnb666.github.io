@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鲍超亮 | C/C++ 嵌入式开发工程师</title>
+<style>
+/* ========== CSS Reset & Variables ========== */
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #111118;
+  --bg-card-hover: #16162a;
+  --text: #c8d6e5;
+  --text-dim: #7f8fa6;
+  --neon-green: #00ff41;
+  --neon-blue: #00d4ff;
+  --neon-purple: #a855f7;
+  --neon-orange: #f59e0b;
+  --neon-pink: #ec4899;
+  --border: #1e1e2e;
+  --glow-green: 0 0 10px rgba(0,255,65,0.3), 0 0 40px rgba(0,255,65,0.1);
+  --glow-blue: 0 0 10px rgba(0,212,255,0.3), 0 0 40px rgba(0,212,255,0.1);
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  --font-sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior:smooth; scrollbar-width:thin; scrollbar-color:var(--neon-green) var(--bg); }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--neon-green); border-radius:3px; }
+
+body {
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  line-height:1.7;
+}
+
+/* ========== Code Rain Canvas ========== */
+#codeRain {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  pointer-events:none; z-index:0; opacity:0.12;
+}
+
+/* ========== Navigation ========== */
+nav {
+  position:fixed; top:0; width:100%; z-index:1000;
+  backdrop-filter:blur(20px) saturate(180%);
+  background:rgba(10,10,15,0.85);
+  border-bottom:1px solid var(--border);
+  transition:all 0.4s;
+}
+nav .nav-inner {
+  max-width:1200px; margin:0 auto; padding:0 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+  height:64px;
+}
+nav .logo {
+  font-family:var(--font-mono); font-size:1.3rem; font-weight:700;
+  color:var(--neon-green); text-shadow:0 0 20px rgba(0,255,65,0.5);
+  letter-spacing:2px;
+}
+nav .logo span { color:var(--neon-blue); }
+nav .nav-links { display:flex; gap:2rem; list-style:none; }
+nav .nav-links a {
+  color:var(--text-dim); text-decoration:none; font-size:0.9rem;
+  font-family:var(--font-mono); transition:all 0.3s; position:relative;
+}
+nav .nav-links a:hover { color:var(--neon-green); text-shadow:0 0 8px rgba(0,255,65,0.4); }
+nav .nav-links a::after {
+  content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px;
+  background:var(--neon-green); transition:width 0.3s; box-shadow:var(--glow-green);
+}
+nav .nav-links a:hover::after { width:100%; }
+nav .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; z-index:1001; }
+nav .hamburger span { width:24px; height:2px; background:var(--neon-green); transition:0.3s; }
+
+/* ========== Hero Section ========== */
+.hero {
+  position:relative; z-index:1;
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:6rem 2rem 4rem;
+}
+.hero-content { max-width:800px; text-align:center; }
+.hero .glitch {
+  font-family:var(--font-mono); font-size:clamp(2.5rem, 7vw, 5rem);
+  font-weight:900; color:#fff; position:relative; letter-spacing:3px;
+  text-shadow: 0 0 10px rgba(0,212,255,0.5), 0 0 40px rgba(0,212,255,0.2);
+  animation:glitch 3s infinite;
+}
+@keyframes glitch {
+  0%,100% { transform:translate(0); }
+  92% { transform:translate(0); }
+  93% { transform:translate(-3px,1px); }
+  94% { transform:translate(3px,-1px); }
+  95% { transform:translate(0); }
+  96% { transform:translate(2px,1px); }
+  97% { transform:translate(-2px,-1px); }
+}
+.hero .subtitle {
+  font-family:var(--font-mono); font-size:clamp(1rem, 2.5vw, 1.4rem);
+  color:var(--neon-green); margin-top:1rem;
+  border-right:3px solid var(--neon-green);
+  display:inline-block; white-space:nowrap; overflow:hidden;
+  animation: blink 0.75s step-end infinite;
+}
+@keyframes blink { 50% { border-color:transparent; } }
+.hero .tagline {
+  color:var(--text-dim); font-size:1.1rem; margin-top:1.5rem; max-width:600px; margin-inline:auto;
+}
+.hero-btns { display:flex; gap:1rem; justify-content:center; margin-top:2.5rem; flex-wrap:wrap; }
+.hero .btn {
+  padding:0.8rem 2rem; border-radius:8px; text-decoration:none; font-weight:600;
+  font-family:var(--font-mono); font-size:0.95rem; transition:all 0.3s; cursor:pointer;
+  position:relative; overflow:hidden;
+}
+.btn-primary {
+  background:transparent; color:var(--neon-green);
+  border:2px solid var(--neon-green);
+  box-shadow:var(--glow-green);
+}
+.btn-primary:hover {
+  background:var(--neon-green); color:var(--bg);
+  box-shadow:0 0 30px rgba(0,255,65,0.5), 0 0 60px rgba(0,255,65,0.2);
+  transform:translateY(-2px);
+}
+.btn-secondary {
+  background:transparent; color:var(--neon-blue);
+  border:2px solid var(--neon-blue);
+}
+.btn-secondary:hover {
+  background:var(--neon-blue); color:var(--bg);
+  box-shadow:0 0 30px rgba(0,212,255,0.5);
+  transform:translateY(-2px);
+}
+
+/* Floating skill orbs in hero */
+.hero-orbs { position:absolute; width:100%; height:100%; top:0; left:0; pointer-events:none; z-index:0; }
+.orb {
+  position:absolute; border-radius:50%; filter:blur(60px); opacity:0.15;
+  animation: floatOrb 8s ease-in-out infinite;
+}
+.orb:nth-child(1) { width:200px; height:200px; background:var(--neon-green); top:20%; left:10%; animation-delay:0s; }
+.orb:nth-child(2) { width:150px; height:150px; background:var(--neon-blue); top:50%; right:10%; animation-delay:-3s; }
+.orb:nth-child(3) { width:180px; height:180px; background:var(--neon-purple); bottom:15%; left:30%; animation-delay:-5s; }
+@keyframes floatOrb {
+  0%,100% { transform:translateY(0) scale(1); }
+  50% { transform:translateY(-30px) scale(1.1); }
+}
+
+/* ========== Section Common ========== */
+section { position:relative; z-index:1; padding:5rem 2rem; }
+.section-container { max-width:1100px; margin:0 auto; }
+.section-title {
+  font-family:var(--font-mono); font-size:2rem; font-weight:700; color:#fff;
+  margin-bottom:3rem; text-align:center;
+}
+.section-title::before { content:'#'; color:var(--neon-green); margin-right:0.5rem; }
+.section-title::after {
+  content:''; display:block; width:80px; height:3px; background:var(--neon-green);
+  margin:0.5rem auto 0; box-shadow:var(--glow-green);
+}
+
+/* ========== About / Terminal ========== */
+.terminal {
+  background:rgba(0,0,0,0.6); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden; max-width:700px; margin:0 auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.terminal-header {
+  background:#1a1a2e; padding:0.8rem 1.2rem; display:flex; gap:8px; align-items:center;
+  border-bottom:1px solid var(--border);
+}
+.terminal-dot { width:12px; height:12px; border-radius:50%; }
+.terminal-dot:nth-child(1) { background:#ff5f57; }
+.terminal-dot:nth-child(2) { background:#febc2e; }
+.terminal-dot:nth-child(3) { background:#28c840; }
+.terminal-title { margin-left:1rem; color:var(--text-dim); font-family:var(--font-mono); font-size:0.85rem; flex:1; text-align:center; }
+.terminal-body { padding:1.5rem; font-family:var(--font-mono); font-size:0.9rem; min-height:200px; }
+.terminal-body .line { margin-bottom:0.5rem; }
+.terminal-body .prompt { color:var(--neon-green); }
+.terminal-body .cmd { color:var(--neon-blue); }
+.terminal-body .output { color:var(--text-dim); padding-left:1rem; }
+.terminal-body .highlight { color:var(--neon-orange); }
+.terminal-body .cursor { display:inline-block; width:8px; height:16px; background:var(--neon-green); animation:blink 1s step-end infinite; vertical-align:middle; margin-left:2px; }
+
+/* ========== Skills ========== */
+.skills-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; }
+.skill-category {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+  padding:1.8rem; transition:all 0.3s; cursor:default;
+}
+.skill-category:hover {
+  background:var(--bg-card-hover); border-color:var(--neon-green);
+  box-shadow:var(--glow-green); transform:translateY(-4px);
+}
+.skill-category .cat-icon { font-size:2rem; margin-bottom:0.8rem; }
+.skill-category .cat-title { font-family:var(--font-mono); font-size:1.1rem; font-weight:600; color:#fff; margin-bottom:1rem; }
+.skill-tags { display:flex; flex-wrap:wrap; gap:0.5rem; }
+.skill-tag {
+  font-family:var(--font-mono); font-size:0.8rem; padding:0.3rem 0.8rem;
+  border-radius:20px; background:rgba(0,255,65,0.08); color:var(--neon-green);
+  border:1px solid rgba(0,255,65,0.2); transition:all 0.3s;
+}
+.skill-tag:hover { background:rgba(0,255,65,0.2); box-shadow:0 0 12px rgba(0,255,65,0.2); }
+.skill-tag.blue { color:var(--neon-blue); border-color:rgba(0,212,255,0.2); background:rgba(0,212,255,0.08); }
+.skill-tag.purple { color:var(--neon-purple); border-color:rgba(168,85,247,0.2); background:rgba(168,85,247,0.08); }
+.skill-tag.orange { color:var(--neon-orange); border-color:rgba(245,158,11,0.2); background:rgba(245,158,11,0.08); }
+
+/* ========== Experience Timeline ========== */
+.timeline { position:relative; padding-left:2rem; }
+.timeline::before {
+  content:''; position:absolute; left:0; top:0; width:2px; height:100%;
+  background:linear-gradient(to bottom, var(--neon-green), var(--neon-blue), var(--neon-purple));
+}
+.timeline-item { position:relative; margin-bottom:2.5rem; padding-left:2rem; }
+.timeline-item::before {
+  content:''; position:absolute; left:-2.5rem; top:0.4rem;
+  width:14px; height:14px; border-radius:50%; background:var(--bg);
+  border:3px solid var(--neon-green); box-shadow:0 0 12px rgba(0,255,65,0.4);
+}
+.timeline-date { font-family:var(--font-mono); font-size:0.85rem; color:var(--neon-green); margin-bottom:0.3rem; }
+.timeline-title { font-size:1.2rem; font-weight:700; color:#fff; }
+.timeline-sub { color:var(--text-dim); font-size:0.9rem; margin-bottom:0.8rem; }
+.timeline-desc { color:var(--text-dim); font-size:0.9rem; }
+.timeline-desc li { margin-bottom:0.3rem; list-style-type:'▹ '; }
+
+/* ========== Projects ========== */
+.projects-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(450px, 1fr)); gap:1.5rem; }
+.project-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+  padding:2rem; transition:all 0.3s; position:relative; overflow:hidden;
+}
+.project-card::before {
+  content:''; position:absolute; top:0; left:0; width:100%; height:3px;
+  background:linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+  transform:scaleX(0); transform-origin:left; transition:transform 0.4s;
+}
+.project-card:hover::before { transform:scaleX(1); }
+.project-card:hover {
+  background:var(--bg-card-hover); border-color:var(--neon-blue);
+  transform:translateY(-4px); box-shadow:0 10px 40px rgba(0,0,0,0.4);
+}
+.project-card .proj-title { font-size:1.2rem; font-weight:700; color:#fff; margin-bottom:0.5rem; }
+.project-card .proj-badge {
+  display:inline-block; font-family:var(--font-mono); font-size:0.7rem;
+  padding:0.2rem 0.7rem; border-radius:20px; color:var(--neon-green);
+  background:rgba(0,255,65,0.1); border:1px solid rgba(0,255,65,0.2);
+  margin-bottom:0.8rem;
+}
+.project-card .proj-desc { color:var(--text-dim); font-size:0.9rem; margin-bottom:1rem; }
+.project-card .proj-tech { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1rem; }
+.project-card .proj-tech span {
+  font-family:var(--font-mono); font-size:0.75rem; padding:0.15rem 0.6rem;
+  border-radius:4px; background:rgba(0,212,255,0.08); color:var(--neon-blue);
+  border:1px solid rgba(0,212,255,0.15);
+}
+.project-card .proj-details { color:var(--text-dim); font-size:0.85rem; }
+.project-card .proj-details li { margin-bottom:0.3rem; }
+
+/* ========== Stats / Awards ========== */
+.stats-row { display:flex; flex-wrap:wrap; gap:1.5rem; justify-content:center; margin-bottom:3rem; }
+.stat-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+  padding:1.5rem 2rem; text-align:center; min-width:150px; transition:all 0.3s;
+}
+.stat-card:hover { border-color:var(--neon-purple); box-shadow:0 0 20px rgba(168,85,247,0.2); transform:translateY(-2px); }
+.stat-num { font-family:var(--font-mono); font-size:2.5rem; font-weight:900; color:var(--neon-purple); }
+.stat-label { color:var(--text-dim); font-size:0.85rem; margin-top:0.3rem; }
+
+.awards-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; }
+.award-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:10px;
+  padding:1.2rem; display:flex; align-items:center; gap:1rem; transition:all 0.3s;
+}
+.award-card:hover { border-color:var(--neon-orange); transform:translateY(-2px); box-shadow:0 4px 20px rgba(245,158,11,0.15); }
+.award-icon { font-size:2rem; }
+.award-text .award-name { color:#fff; font-weight:600; font-size:0.95rem; }
+.award-text .award-year { color:var(--text-dim); font-size:0.8rem; }
+
+/* ========== Contact ========== */
+.contact-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.5rem; }
+.contact-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+  padding:1.5rem; text-align:center; transition:all 0.3s; text-decoration:none;
+}
+.contact-card:hover {
+  border-color:var(--neon-blue); box-shadow:var(--glow-blue); transform:translateY(-2px);
+}
+.contact-card .contact-icon { font-size:2.5rem; margin-bottom:0.5rem; }
+.contact-card .contact-label { font-family:var(--font-mono); color:var(--neon-blue); font-size:0.9rem; }
+.contact-card .contact-val { color:var(--text-dim); font-size:0.9rem; margin-top:0.3rem; }
+
+/* ========== Footer ========== */
+footer {
+  position:relative; z-index:1; text-align:center; padding:3rem 2rem;
+  border-top:1px solid var(--border); color:var(--text-dim); font-family:var(--font-mono); font-size:0.85rem;
+}
+footer .heart { color:var(--neon-pink); animation:pulse 1.5s ease-in-out infinite; display:inline-block; }
+@keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.2); } }
+
+/* ========== Animations ========== */
+.reveal { opacity:0; transform:translateY(30px); transition:all 0.7s ease-out; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* ========== Responsive ========== */
+@media (max-width:768px) {
+  nav .nav-links { display:none; position:fixed; top:64px; left:0; width:100%; background:rgba(10,10,15,0.95); flex-direction:column; padding:1rem 2rem; gap:1rem; border-bottom:1px solid var(--border); backdrop-filter:blur(20px); }
+  nav .nav-links.open { display:flex; }
+  nav .hamburger { display:flex; }
+  .projects-grid { grid-template-columns:1fr; }
+  .skills-grid { grid-template-columns:1fr; }
+  .hero .glitch { font-size:2rem; }
+  .section-title { font-size:1.5rem; }
+  .stats-row { gap:1rem; }
+  .stat-card { min-width:120px; padding:1rem 1.5rem; }
+  .stat-num { font-size:2rem; }
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Code Rain Canvas -->
+<canvas id="codeRain"></canvas>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-inner">
+    <a href="#hero" class="logo">&lt;<span>BCL</span>/&gt;</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">01. 关于</a></li>
+      <li><a href="#skills">02. 技能</a></li>
+      <li><a href="#experience">03. 经历</a></li>
+      <li><a href="#projects">04. 项目</a></li>
+      <li><a href="#awards">05. 荣誉</a></li>
+      <li><a href="#contact">06. 联系</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero" id="hero">
+  <div class="hero-orbs">
+    <div class="orb"></div><div class="orb"></div><div class="orb"></div>
+  </div>
+  <div class="hero-content">
+    <p style="font-family:var(--font-mono); color:var(--neon-green); margin-bottom:1rem; font-size:0.95rem;">
+      $ hello-world<span class="cursor"></span>
+    </p>
+    <h1 class="glitch">鲍 超 亮</h1>
+    <p class="subtitle" id="typewriter"></p>
+    <p class="tagline">
+      🚀 热爱嵌入式底层与高性能C/C++开发 · 极客精神 · 擅长从零搭建复杂软硬件系统
+    </p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn btn-primary">▶ 查看项目</a>
+      <a href="#contact" class="btn btn-secondary">☎ 联系我</a>
+      <a href="鲍超亮-C_C++开发.pdf" class="btn btn-secondary" style="border-color:var(--neon-purple); color:var(--neon-purple);" target="_blank">📄 下载简历</a>
+    </div>
+  </div>
+</section>
+
+<!-- About / Terminal -->
+<section id="about">
+  <div class="section-container">
+    <h2 class="section-title reveal">关于我</h2>
+    <div class="terminal reveal">
+      <div class="terminal-header">
+        <div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div>
+        <div class="terminal-title">bamon@embedded-dev ~ zsh</div>
+      </div>
+      <div class="terminal-body" id="terminalBody">
+        <div class="line"><span class="prompt">bamon@dev:~$</span> <span class="cmd">cat about_me.txt</span></div>
+        <div class="line output">──────────────────────────────</div>
+        <div class="line output">Name: <span class="highlight">鲍超亮 (Bao Chaoliang)</span></div>
+        <div class="line output">Role: C/C++ 嵌入式开发工程师</div>
+        <div class="line output">Age: 23 | Gender: Male</div>
+        <div class="line output">Location: 中国·随时到岗</div>
+        <div class="line output">──────────────────────────────</div>
+        <div class="line output">Education: 河北地质大学 计算机科学与技术 (本科 2026)</div>
+        <div class="line output">GPA: 3.6 / 4.0 (专业前 10%)</div>
+        <div class="line output">──────────────────────────────</div>
+        <div class="line output">Core: 熟练掌握 C/C++ · Linux 系统编程 · Qt 框架</div>
+        <div class="line output">Embedded: STM32 · 外设驱动 · 物联网协议</div>
+        <div class="line output">DevOps: Git · GCC/GDB · CMake · AI 辅助开发</div>
+        <div class="line output">──────────────────────────────</div>
+        <div class="line output"><span class="highlight">$</span> 具备极强的自学能力和极客精神</div>
+        <div class="line output"><span class="highlight">$</span> 习惯阅读技术官方文档及源码</div>
+        <div class="line output"><span class="highlight">$</span> 善于利用 AI 辅助攻克技术难点</div>
+        <div class="line" style="margin-top:0.5rem;"><span class="prompt">bamon@dev:~$</span> <span class="cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skills -->
+<section id="skills">
+  <div class="section-container">
+    <h2 class="section-title reveal">技能特⻓</h2>
+    <div class="skills-grid">
+      <div class="skill-category reveal">
+        <div class="cat-icon">⚡</div>
+        <div class="cat-title">编程语言</div>
+        <div class="skill-tags">
+          <span class="skill-tag">C/C++</span>
+          <span class="skill-tag">STL 标准库</span>
+          <span class="skill-tag">C++11 新特性</span>
+          <span class="skill-tag blue">智能指针</span>
+          <span class="skill-tag blue">Lambda 表达式</span>
+          <span class="skill-tag purple">面向对象 OOP</span>
+        </div>
+      </div>
+      <div class="skill-category reveal">
+        <div class="cat-icon">🐧</div>
+        <div class="cat-title">Linux 系统 & 网络编程</div>
+        <div class="skill-tags">
+          <span class="skill-tag">文件 I/O</span>
+          <span class="skill-tag">System V IPC</span>
+          <span class="skill-tag blue">共享内存</span>
+          <span class="skill-tag blue">管道/信号量</span>
+          <span class="skill-tag purple">TCP/UDP</span>
+          <span class="skill-tag purple">Socket 编程</span>
+          <span class="skill-tag orange">poll/epoll</span>
+          <span class="skill-tag orange">多线程/多进程</span>
+          <span class="skill-tag">令牌桶限流</span>
+          <span class="skill-tag blue">Reactor 模型</span>
+        </div>
+      </div>
+      <div class="skill-category reveal">
+        <div class="cat-icon">🖥️</div>
+        <div class="cat-title">Qt 框架开发</div>
+        <div class="skill-tags">
+          <span class="skill-tag">信号与槽机制</span>
+          <span class="skill-tag blue">纯代码自定义 UI</span>
+          <span class="skill-tag blue">QWidget/MainWindow</span>
+          <span class="skill-tag purple">QNetwork (TCP/UDP)</span>
+          <span class="skill-tag purple">QSerialPort</span>
+          <span class="skill-tag orange">QtCharts / QPainter</span>
+          <span class="skill-tag orange">QSettings</span>
+          <span class="skill-tag">QtMqtt</span>
+        </div>
+      </div>
+      <div class="skill-category reveal">
+        <div class="cat-icon">🔌</div>
+        <div class="cat-title">嵌入式开发</div>
+        <div class="skill-tags">
+          <span class="skill-tag">STM32 F103</span>
+          <span class="skill-tag">GPIO/UART/I2C/SPI</span>
+          <span class="skill-tag blue">ADC/PWM/RTC</span>
+          <span class="skill-tag blue">IWDG 看门狗</span>
+          <span class="skill-tag purple">ESP8266 Wi-Fi</span>
+          <span class="skill-tag purple">NRF24L01</span>
+          <span class="skill-tag orange">MQTT 协议</span>
+          <span class="skill-tag orange">MF RC522 RFID</span>
+        </div>
+      </div>
+      <div class="skill-category reveal">
+        <div class="cat-icon">🗄️</div>
+        <div class="cat-title">数据库 & 工具</div>
+        <div class="skill-tags">
+          <span class="skill-tag">SQLite</span>
+          <span class="skill-tag">Oracle</span>
+          <span class="skill-tag blue">MySQL</span>
+          <span class="skill-tag blue">复杂 SQL 查询</span>
+          <span class="skill-tag purple">Git 版本管理</span>
+          <span class="skill-tag orange">Claude/GPT/Gemini</span>
+          <span class="skill-tag orange">交叉编译</span>
+        </div>
+      </div>
+      <div class="skill-category reveal">
+        <div class="cat-icon">📊</div>
+        <div class="cat-title">数据结构 & 算法</div>
+        <div class="skill-tags">
+          <span class="skill-tag">链表 / 哈希表 / 树</span>
+          <span class="skill-tag blue">KMP 算法</span>
+          <span class="skill-tag blue">动态规划</span>
+          <span class="skill-tag purple">排序算法</span>
+          <span class="skill-tag orange">设计模式</span>
+          <span class="skill-tag">多线程并发</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Experience -->
+<section id="experience">
+  <div class="section-container">
+    <h2 class="section-title reveal">实习经历</h2>
+    <div class="timeline reveal">
+      <div class="timeline-item">
+        <div class="timeline-date">2025.09 — 2026.02</div>
+        <div class="timeline-title">郑州春江电子科技有限公司</div>
+        <div class="timeline-sub">嵌入式实习生</div>
+        <ul class="timeline-desc">
+          <li>协助参与智慧仓库物联网平台的嵌入式软件开发，在嵌入式 Linux 环境下完成基础功能模块的辅助实现与调试</li>
+          <li>负责编写 STM32 驱动及 SHT30 温湿度传感器模块代码，实现仓库环境数据的精准采集</li>
+          <li>通过 TCP/UDP 将采集到的温湿度数据解析并上传至物联网云平台</li>
+          <li>基于 Qt 框架设计并实现仓库内部人机交互界面（HMI），实现温湿度数据的实时显示与控制终端</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects">
+  <div class="section-container">
+    <h2 class="section-title reveal">项目经历</h2>
+    <div class="projects-grid">
+      <!-- Project 1 -->
+      <div class="project-card reveal">
+        <div class="proj-title">🌐 智慧仓库采集检测网关系统</div>
+        <div class="proj-badge">核心项目</div>
+        <p class="proj-desc">针对智能仓库的环境温湿度监测需求，设计并实现了一套包含底层数据采集、无线网络传输、高并发网关处理及上传云服务器的完整物联网系统。</p>
+        <div class="proj-tech">
+          <span>C/C++</span><span>Linux</span><span>Qt</span><span>UDP/TCP</span>
+          <span>poll I/O 多路复用</span><span>线程池</span><span>IPC</span>
+        </div>
+        <ul class="proj-details">
+          <li>基于 STM32 编写 SHT30 传感器 I2C 驱动，实现高精度温湿度采集</li>
+          <li>集成 ESP8266 + AT 指令状态机，UDP 组播透传数据至网关</li>
+          <li>采用 poll + Reactor 异步事件驱动 + 令牌桶限流，抵御 UDP 广播风暴</li>
+          <li>线程池异步处理 JSON 解析 + fork 守护进程 + 按天滚动日志系统</li>
+          <li>纯 C 语言 + Linux 系统调用，零第三方依赖，支持 ARM/x86 交叉编译</li>
+        </ul>
+      </div>
+      <!-- Project 2 -->
+      <div class="project-card reveal">
+        <div class="proj-title">📊 智能网关监控系统</div>
+        <div class="proj-badge">核心项目</div>
+        <p class="proj-desc">设计并实现了一套包含用户登录、数据可视化展示、数据本地存储的 C/S 架构数据监控系统。</p>
+        <div class="proj-tech">
+          <span>C++17</span><span>Qt 6.11 Widgets</span><span>SQLite3</span>
+          <span>QTcpSocket</span><span>MQTT 3.1.1</span><span>QtCharts</span>
+        </div>
+        <ul class="proj-details">
+          <li>Qt 多窗口跳转 + 信号槽实现登录/注册/主控窗口间内存安全切换</li>
+          <li>QCryptographicHash 密码加密 + QTcpSocket 实现本地安全认证系统</li>
+          <li>集成 QtMqtt 连接云 Broker，实时订阅温湿度传感器数据</li>
+          <li>QPainter + QtCharts 绘制工业仪表盘与实时曲线</li>
+          <li>阈值触发 QMessageBox 弹窗报警 + 异常日志持久化存储</li>
+        </ul>
+      </div>
+      <!-- Project 3 -->
+      <div class="project-card reveal">
+        <div class="proj-title">📝 日志分析与文本编辑工具</div>
+        <div class="proj-badge">独立开发</div>
+        <p class="proj-desc">基于 Qt 6 / C++ 开发的跨平台文本编辑器，支持多编码文本处理、查找替换、行号显示等功能。</p>
+        <div class="proj-tech">
+          <span>C++11</span><span>Qt 6 Widgets</span><span>Qt Designer</span>
+          <span>QSettings</span><span>QStringConverter</span><span>qmake</span>
+        </div>
+        <ul class="proj-details">
+          <li>支持 UTF-8/UTF-16/GBK/GB2312/ANSI 多编码读写，关闭时未保存自动提示</li>
+          <li>QStringDecoder/QStringEncoder 实现 Qt 6 兼容的编码动态切换</li>
+          <li>自定义 QTextEdit 子类，重写 paintEvent 实现行号区域绘制</li>
+          <li>支持拖放文件打开 + QSettings 最近文件列表持久化（最多 10 条）</li>
+          <li>Lambda 信号槽实现行列号追踪、当前行高亮、字数实时统计</li>
+        </ul>
+      </div>
+      <!-- Project 4 -->
+      <div class="project-card reveal">
+        <div class="proj-title">🔐 基于 STM32 的智能门禁控制系统</div>
+        <div class="proj-badge">独立开发</div>
+        <p class="proj-desc">针对老家大门传统钥匙携带不便、易丢失的痛点，设计并开发了一套非接触式智能门禁控制系统。</p>
+        <div class="proj-tech">
+          <span>STM32</span><span>SPI</span><span>MF RC522</span>
+          <span>ESP8266</span><span>IWDG</span><span>ISO/IEC 14443A</span>
+        </div>
+        <ul class="proj-details">
+          <li>基于标准库编写 STM32 底层驱动，SPI 协议精确配置 RC522 寄存器</li>
+          <li>实现完整"寻卡→防冲突→选卡→密钥认证→数据读写"RFID 业务逻辑</li>
+          <li>扇区遍历算法 + PICC_AUTHENT1A 密码校验 + 非法卡自动 Halt 防恶意刷卡</li>
+          <li>ESP8266 无线模块实现局域网内手机控制开锁 + IWDG 防死机</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Awards & Stats -->
+<section id="awards">
+  <div class="section-container">
+    <h2 class="section-title reveal">荣誉 & 获奖</h2>
+    <div class="stats-row reveal">
+      <div class="stat-card">
+        <div class="stat-num" id="countGPA">3.6</div>
+        <div class="stat-label">GPA / 4.0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="countProjects">4+</div>
+        <div class="stat-label">核心项目</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="countAwards">10+</div>
+        <div class="stat-label">荣誉奖项</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="countSkills">30+</div>
+        <div class="stat-label">技术技能</div>
+      </div>
+    </div>
+    <div class="awards-grid reveal">
+      <div class="award-card">
+        <div class="award-icon">🏆</div>
+        <div class="award-text">
+          <div class="award-name">蓝桥杯 C/C++ 程序设计省赛二等奖</div>
+          <div class="award-year">第十六届</div>
+        </div>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">📜</div>
+        <div class="award-text">
+          <div class="award-name">工业互联网平台开发工程师初级证书</div>
+          <div class="award-year">国家级</div>
+        </div>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">🎖️</div>
+        <div class="award-text">
+          <div class="award-name">国家励学励志奖</div>
+          <div class="award-year">2023</div>
+        </div>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">🥇</div>
+        <div class="award-text">
+          <div class="award-name">校一等奖学金</div>
+          <div class="award-year">2023</div>
+        </div>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">🥈</div>
+        <div class="award-text">
+          <div class="award-name">校二等奖学金</div>
+          <div class="award-year">2024</div>
+        </div>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">⭐</div>
+        <div class="award-text">
+          <div class="award-name">校学习领航奖 / 学习优秀奖</div>
+          <div class="award-year">2023 — 2024</div>
+        </div>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">👨‍🎓</div>
+        <div class="award-text">
+          <div class="award-name">校三好学生 (连续三年) + 优秀毕业生</div>
+          <div class="award-year">2022 — 2026</div>
+        </div>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">🎤</div>
+        <div class="award-text">
+          <div class="award-name">普通话二甲 · CET-4 · C1驾驶证</div>
+          <div class="award-year">其他证书</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="section-container">
+    <h2 class="section-title reveal">联系我</h2>
+    <p style="text-align:center; color:var(--text-dim); margin-bottom:2rem; font-family:var(--font-mono);">
+      $ ssh bamon@embedded.world <span class="cursor" style="display:inline-block;width:8px;height:16px;background:var(--neon-green);vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite;"></span>
+    </p>
+    <div class="contact-grid reveal">
+      <a href="mailto:bamon1026@gmail.com" class="contact-card">
+        <div class="contact-icon">📧</div>
+        <div class="contact-label">Email</div>
+        <div class="contact-val">bamon1026@gmail.com</div>
+      </a>
+      <a href="tel:18339513959" class="contact-card">
+        <div class="contact-icon">📱</div>
+        <div class="contact-label">Phone</div>
+        <div class="contact-val">183-3951-3959</div>
+      </a>
+      <div class="contact-card">
+        <div class="contact-icon">💼</div>
+        <div class="contact-label">求职意向</div>
+        <div class="contact-val">C/C++ 开发 · 随时到岗</div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">📍</div>
+        <div class="contact-label">状态</div>
+        <div class="contact-val" style="color:var(--neon-green);">🚀 Open to Work</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>Built with <span class="heart">❤</span> by 鲍超亮 | © 2026</p>
+  <p style="margin-top:0.5rem;">
+    <span style="color:var(--neon-green);">C</span> /
+    <span style="color:var(--neon-blue);">C++</span> /
+    <span style="color:var(--neon-purple);">Linux</span> /
+    <span style="color:var(--neon-orange);">Qt</span> /
+    <span style="color:var(--neon-pink);">Embedded</span>
+  </p>
+  <p style="margin-top:0.5rem; font-size:0.75rem;">$ make awesome --jobs=$(nproc) <span style="color:var(--neon-green);">[OK]</span></p>
+</footer>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+// ========== Code Rain (Matrix Effect) ==========
+(() => {
+  const canvas = document.getElementById('codeRain');
+  const ctx = canvas.getContext('2d');
+  let w, h, cols, drops;
+  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+  const fontSize = 14;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cols = Math.floor(w / fontSize);
+    drops = Array(cols).fill(0).map(() => Math.random() * -100);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(10, 10, 15, 0.05)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = fontSize + 'px "JetBrains Mono", monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+      ctx.fillText(char, x, y);
+      if (y > h && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  setInterval(draw, 50);
+})();
+
+// ========== Typewriter Effect ==========
+(() => {
+  const el = document.getElementById('typewriter');
+  const phrases = [
+    'C/C++ 嵌入式开发工程师',
+    'Linux 系统编程爱好者',
+    'Qt 框架开发者',
+    '物联网全栈构建者',
+    '从底向上 · 从硬到软'
+  ];
+  let phraseIdx = 0, charIdx = 0, isDeleting = false;
+  const typeSpeed = 80, deleteSpeed = 35, pauseBetween = 2000;
+
+  function type() {
+    const current = phrases[phraseIdx];
+    if (isDeleting) {
+      el.textContent = current.substring(0, charIdx - 1);
+      charIdx--;
+    } else {
+      el.textContent = current.substring(0, charIdx + 1);
+      charIdx++;
+    }
+    let delay = isDeleting ? deleteSpeed : typeSpeed;
+    if (!isDeleting && charIdx === current.length) {
+      delay = pauseBetween;
+      isDeleting = true;
+    } else if (isDeleting && charIdx === 0) {
+      isDeleting = false;
+      phraseIdx = (phraseIdx + 1) % phrases.length;
+      delay = 300;
+    }
+    setTimeout(type, delay);
+  }
+  type();
+})();
+
+// ========== Mobile Nav Toggle ==========
+function toggleNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// ========== Scroll Reveal ==========
+(() => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+})();
+
+// ========== Animated Counter (triggered on scroll) ==========
+(() => {
+  const statCards = document.querySelectorAll('.stat-num');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animation = 'none';
+        entry.target.offsetHeight; // reflow
+        entry.target.style.animation = '';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  statCards.forEach(el => observer.observe(el));
+})();
+
+// ========== Parallax effect on hero orbs ==========
+(() => {
+  const orbs = document.querySelectorAll('.orb');
+  document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 20;
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    orbs.forEach((orb, i) => {
+      const factor = (i + 1) * 0.5;
+      orb.style.transform = `translate(${x * factor}px, ${y * factor}px)`;
+    });
+  });
+})();
+
+// ========== Terminal type-out effect ==========
+(() => {
+  const terminal = document.getElementById('terminalBody');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const lines = terminal.querySelectorAll('.line');
+        lines.forEach((line, i) => {
+          line.style.opacity = '0';
+          line.style.transform = 'translateY(8px)';
+          line.style.transition = 'all 0.3s ease-out';
+          setTimeout(() => {
+            line.style.opacity = '1';
+            line.style.transform = 'translateY(0)';
+          }, i * 40);
+        });
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(terminal);
+})();
+
+// ========== Keyboard easter egg: press 'h' for hacker mode ==========
+let hackMode = false;
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'h' && e.ctrlKey && e.shiftKey) {
+    hackMode = !hackMode;
+    const rain = document.getElementById('codeRain');
+    rain.style.opacity = hackMode ? '0.35' : '0.12';
+    rain.style.transition = 'opacity 0.8s';
+    document.body.style.transition = 'all 0.8s';
+    if (hackMode) {
+      document.body.style.color = '#00ff41';
+      document.body.style.textShadow = '0 0 2px rgba(0,255,65,0.3)';
+    } else {
+      document.body.style.color = '';
+      document.body.style.textShadow = '';
+    }
+  }
+});
+
+console.log('%c👋 你好！欢迎查看我的个人网站源码。\n%c如果你对 C/C++ 嵌入式开发感兴趣，欢迎联系我：bamon1026@gmail.com',
+  'font-size:1.2rem; color:#00ff41;', 'color:#00d4ff;');
+console.log('%c💡 小彩蛋：按 Ctrl+Shift+H 切换黑客模式', 'color:#a855f7; font-style:italic;');
+</script>
+</body>
+</html>
