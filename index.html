@@ -551,6 +551,113 @@ footer .tech-tags span:hover { color:var(--accent); }
 .tilt-container { perspective:1200px; }
 .tilt-card { transition:transform 0.1s ease-out; will-change:transform; }
 
+/* ============ Scroll Progress Bar ============ */
+.scroll-progress {
+  position:fixed; top:0; left:0; height:3px; z-index:10001;
+  background:var(--hero-gradient);
+  width:0%; border-radius:0 2px 2px 0;
+  transition: width 0.1s linear;
+}
+[data-theme="dark"] .scroll-progress {
+  height:2px;
+  box-shadow:0 0 10px rgba(0,255,65,0.5), 0 0 20px rgba(0,255,65,0.2);
+}
+
+/* ============ Back to Top Button ============ */
+.back-to-top {
+  position:fixed; bottom:32px; right:32px; z-index:1000;
+  width:50px; height:50px; border-radius:50%;
+  background:var(--bg-card);
+  backdrop-filter:blur(30px) saturate(180%);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);
+  border:1.5px solid var(--border);
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:translateY(20px); pointer-events:none;
+  transition:all var(--transition-spring);
+  box-shadow:var(--shadow-md);
+}
+.back-to-top.visible { opacity:1; transform:translateY(0); pointer-events:auto; }
+.back-to-top:hover {
+  border-color:var(--accent); transform:translateY(-3px);
+  box-shadow:var(--shadow-lg);
+}
+[data-theme="dark"] .back-to-top:hover {
+  box-shadow:0 0 25px rgba(0,255,65,0.25);
+}
+.back-to-top svg { width:20px; height:20px; }
+.back-to-top svg path { stroke:var(--text); stroke-width:2; fill:none; transition:stroke var(--transition-fast); }
+.back-to-top:hover svg path { stroke:var(--accent); }
+
+/* Progress ring around back-to-top */
+.back-to-top .progress-ring {
+  position:absolute; inset:-4px; transform:rotate(-90deg);
+}
+.back-to-top .progress-ring circle {
+  fill:none; stroke:var(--accent); stroke-width:2;
+  stroke-dasharray:138.2; stroke-dashoffset:138.2;
+  transition:stroke-dashoffset 0.15s linear;
+}
+
+/* ============ Tilt Glare ============ */
+.tilt-card { position:relative; overflow:hidden; }
+.tilt-glare {
+  position:absolute; inset:0; pointer-events:none; z-index:2;
+  border-radius:inherit;
+  opacity:0;
+  transition:opacity 0.3s;
+  background:radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(255,255,255,0.18) 0%, transparent 60%);
+}
+[data-theme="dark"] .tilt-glare {
+  background:radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(0,255,65,0.1) 0%, transparent 60%);
+}
+
+/* ============ Click Ripple ============ */
+.ripple-effect {
+  position:absolute; border-radius:50%; pointer-events:none;
+  transform:scale(0); animation:rippleAnim 0.7s ease-out forwards;
+  background:rgba(0,113,227,0.12);
+  z-index:1;
+}
+[data-theme="dark"] .ripple-effect { background:rgba(0,255,65,0.1); }
+@keyframes rippleAnim {
+  to { transform:scale(4); opacity:0; }
+}
+
+/* ============ Magnetic Button ============ */
+.btn-magnetic { transition:transform 0.15s ease-out, box-shadow var(--transition-smooth), background var(--transition-smooth); }
+
+/* ============ Floating Ambient Particles ============ */
+#ambientParticles {
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+}
+
+/* ============ Typewriter Cursor ============ */
+.typewriter-cursor {
+  display:inline-block; width:2px; height:1em;
+  background:var(--accent); margin-left:2px;
+  vertical-align:text-bottom;
+  animation:cursorBlink 0.8s step-end infinite;
+}
+@keyframes cursorBlink {
+  50% { opacity:0; }
+}
+[data-theme="dark"] .typewriter-cursor {
+  box-shadow:0 0 6px var(--accent);
+}
+
+/* ============ Stat pulse ============ */
+.stat-card.pulse-once {
+  animation:statPulse 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes statPulse {
+  0% { transform:scale(1); }
+  40% { transform:scale(1.06); }
+  100% { transform:scale(1); }
+}
+
 /* ============ Responsive ============ */
 @media (max-width:900px) {
   .skills-grid { grid-template-columns:repeat(2, 1fr); }
@@ -589,6 +696,12 @@ footer .tech-tags span:hover { color:var(--accent); }
 
 <!-- Code Rain (dark mode) -->
 <canvas id="codeRain"></canvas>
+
+<!-- Ambient Floating Particles -->
+<canvas id="ambientParticles"></canvas>
+
+<!-- Scroll Progress Bar -->
+<div class="scroll-progress" id="scrollProgress"></div>
 
 <!-- Cursor Glow -->
 <div id="cursorGlow"></div>
@@ -754,7 +867,7 @@ footer .tech-tags span:hover { color:var(--accent); }
     <h2 class="section-title anim-up">项目经历</h2>
     <p class="section-desc anim-up">从底层嵌入式到上层桌面应用，完整的项目实践。</p>
     <div class="projects-grid">
-      <div class="project-card tilt-card anim-scale" data-tilt>
+      <div class="project-card tilt-card anim-scale" data-tilt><div class="tilt-glare"></div>
         <div class="proj-num">01</div>
         <div class="proj-label">核心项目</div>
         <div class="proj-title">智慧仓库采集检测网关系统</div>
@@ -770,7 +883,7 @@ footer .tech-tags span:hover { color:var(--accent); }
           <li>纯 C + Linux 系统调用，零第三方依赖，ARM/x86 交叉编译</li>
         </ul>
       </div>
-      <div class="project-card tilt-card anim-scale" data-tilt>
+      <div class="project-card tilt-card anim-scale" data-tilt><div class="tilt-glare"></div>
         <div class="proj-num">02</div>
         <div class="proj-label">核心项目</div>
         <div class="proj-title">智能网关监控系统</div>
@@ -786,7 +899,7 @@ footer .tech-tags span:hover { color:var(--accent); }
           <li>阈值弹窗报警 + 异常日志持久化存储</li>
         </ul>
       </div>
-      <div class="project-card tilt-card anim-scale" data-tilt>
+      <div class="project-card tilt-card anim-scale" data-tilt><div class="tilt-glare"></div>
         <div class="proj-num">03</div>
         <div class="proj-label">独立开发</div>
         <div class="proj-title">日志分析与文本编辑工具</div>
@@ -802,7 +915,7 @@ footer .tech-tags span:hover { color:var(--accent); }
           <li>完整菜单栏与快捷键体系（Ctrl+N/O/S/Z/Y/F）</li>
         </ul>
       </div>
-      <div class="project-card tilt-card anim-scale" data-tilt>
+      <div class="project-card tilt-card anim-scale" data-tilt><div class="tilt-glare"></div>
         <div class="proj-num">04</div>
         <div class="proj-label">独立开发</div>
         <div class="proj-title">基于 STM32 的智能门禁系统</div>
@@ -867,6 +980,14 @@ footer .tech-tags span:hover { color:var(--accent); }
     </div>
   </div>
 </section>
+
+<!-- Back to Top -->
+<button class="back-to-top" id="backToTop" aria-label="回到顶部" title="回到顶部">
+  <svg class="progress-ring" viewBox="0 0 50 50">
+    <circle cx="25" cy="25" r="22"/>
+  </svg>
+  <svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 
 <!-- Footer -->
 <footer>
@@ -1004,22 +1125,6 @@ footer .tech-tags span:hover { color:var(--accent); }
   document.querySelectorAll('.anim-up, .anim-scale').forEach(el => observer.observe(el));
 })();
 
-// ========== 3D Tilt on Project Cards ==========
-(() => {
-  document.querySelectorAll('[data-tilt]').forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left, y = e.clientY - rect.top;
-      const rx = ((y - rect.height/2) / (rect.height/2)) * -6;
-      const ry = ((x - rect.width/2) / (rect.width/2)) * 6;
-      card.style.transform = `perspective(1200px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0)';
-    });
-  });
-})();
-
 // ========== Nav Active State ==========
 (() => {
   const sections = document.querySelectorAll('section[id]');
@@ -1051,19 +1156,45 @@ footer .tech-tags span:hover { color:var(--accent); }
   anim();
 })();
 
-// ========== Number pop ==========
+// ========== Counter Animation ==========
 (() => {
-  const observer = new IntersectionObserver((entries) => {
+  const counterObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting && !entry.target.dataset.animated) {
-        entry.target.dataset.animated = '1';
-        entry.target.style.transition = 'all 0.3s';
-        entry.target.style.transform = 'scale(1.1)';
-        setTimeout(() => entry.target.style.transform = 'scale(1)', 300);
+      if (entry.isIntersecting && !entry.target.dataset.counted) {
+        entry.target.dataset.counted = '1';
+        const el = entry.target;
+        const text = el.textContent.trim();
+        // Extract number and suffix (e.g., "3.6", "4+", "10+", "30+")
+        const match = text.match(/^([\d.]+)(.*)/);
+        if (!match) return;
+        const target = parseFloat(match[1]);
+        const suffix = match[2];
+        const isFloat = match[1].includes('.');
+        const duration = 1500;
+        const start = performance.now();
+
+        // Pulse the parent stat-card
+        const card = el.closest('.stat-card');
+        if (card) card.classList.add('pulse-once');
+
+        function update(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease-out cubic
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = target * eased;
+          el.textContent = isFloat ? current.toFixed(1) + suffix : Math.floor(current) + suffix;
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = text; // Ensure final value is exact
+          }
+        }
+        requestAnimationFrame(update);
       }
     });
   }, { threshold: 0.6 });
-  document.querySelectorAll('.stat-num').forEach(el => observer.observe(el));
+  document.querySelectorAll('.stat-num').forEach(el => counterObserver.observe(el));
 })();
 
 // ========== Stagger delays ==========
@@ -1071,6 +1202,239 @@ footer .tech-tags span:hover { color:var(--accent); }
   document.querySelectorAll('.skills-grid .skill-card, .awards-grid .award-card, .contact-grid .contact-card').forEach((el, i) => {
     el.style.transitionDelay = (i % 4) * 0.06 + 's';
   });
+})();
+
+// ========== Scroll Progress Bar ==========
+(() => {
+  const bar = document.getElementById('scrollProgress');
+  const update = () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = Math.min(progress, 100) + '%';
+    requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+})();
+
+// ========== Back to Top Button ==========
+(() => {
+  const btn = document.getElementById('backToTop');
+  const ringCircle = btn.querySelector('.progress-ring circle');
+  const circumference = 138.2; // 2 * PI * 22
+
+  function updateVisibility() {
+    const shouldShow = window.scrollY > 500;
+    btn.classList.toggle('visible', shouldShow);
+
+    // Update progress ring
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+    const offset = circumference * (1 - progress);
+    ringCircle.style.strokeDashoffset = offset;
+    requestAnimationFrame(updateVisibility);
+  }
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  requestAnimationFrame(updateVisibility);
+})();
+
+// ========== Enhanced 3D Tilt with Glare ==========
+(() => {
+  document.querySelectorAll('[data-tilt]').forEach(card => {
+    const glare = card.querySelector('.tilt-glare');
+    if (!glare) return;
+
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const rx = ((y - rect.height/2) / (rect.height/2)) * -8;
+      const ry = ((x - rect.width/2) / (rect.width/2)) * 8;
+      card.style.transform = `perspective(1200px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
+
+      // Update glare position
+      const glareX = (x / rect.width) * 100;
+      const glareY = (y / rect.height) * 100;
+      card.style.setProperty('--glare-x', glareX + '%');
+      card.style.setProperty('--glare-y', glareY + '%');
+      glare.style.opacity = '1';
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0)';
+      card.style.removeProperty('--glare-x');
+      card.style.removeProperty('--glare-y');
+      glare.style.opacity = '0';
+    });
+  });
+})();
+
+// ========== Click Ripple Effect ==========
+(() => {
+  document.querySelectorAll('.project-card, .about-card, .skill-card, .stat-card, .award-card, .contact-card, .btn').forEach(el => {
+    el.style.position = el.style.position || 'relative';
+    el.style.overflow = 'hidden';
+
+    el.addEventListener('click', function(e) {
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple-effect';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      this.appendChild(ripple);
+
+      ripple.addEventListener('animationend', () => ripple.remove());
+    });
+  });
+})();
+
+// ========== Magnetic Button Effect ==========
+(() => {
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.classList.add('btn-magnetic');
+
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = 'translate(0, 0)';
+    });
+  });
+})();
+
+// ========== Floating Ambient Particles ==========
+(() => {
+  const canvas = document.getElementById('ambientParticles');
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  const particles = [];
+  const PARTICLE_COUNT = 40;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Create initial particles
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 2 + 0.8,
+      life: Math.random() * 0.6 + 0.2
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    particles.forEach(p => {
+      // Move
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Wrap around edges
+      if (p.x < -10) p.x = w + 10;
+      if (p.x > w + 10) p.x = -10;
+      if (p.y < -10) p.y = h + 10;
+      if (p.y > h + 10) p.y = -10;
+
+      // Draw with pulsing opacity
+      p.life += 0.005;
+      const alpha = (Math.sin(p.life * 3) * 0.3 + 0.5) * (isDark ? 0.5 : 0.35);
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = isDark
+        ? `rgba(0,255,65,${alpha})`
+        : `rgba(0,113,227,${alpha})`;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ========== Hero Typewriter Effect ==========
+(() => {
+  const subtitle = document.querySelector('.hero-subtitle');
+  if (!subtitle) return;
+
+  const fullText = subtitle.textContent.trim();
+  subtitle.textContent = '';
+
+  // Only run typewriter on desktop for performance
+  if (window.innerWidth < 768) {
+    subtitle.textContent = fullText;
+    return;
+  }
+
+  const cursor = document.createElement('span');
+  cursor.className = 'typewriter-cursor';
+  cursor.innerHTML = '&nbsp;';
+
+  let i = 0;
+  const speed = 50; // ms per character
+
+  function type() {
+    if (i < fullText.length) {
+      subtitle.textContent += fullText.charAt(i);
+      i++;
+      setTimeout(type, speed + Math.random() * 30);
+    } else {
+      subtitle.appendChild(cursor);
+    }
+  }
+
+  // Start typing after hero animations begin
+  setTimeout(type, 600);
+})();
+
+// ========== Parallax Scroll Effect for Sections ==========
+(() => {
+  const sections = document.querySelectorAll('section[id]');
+  let ticking = false;
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        sections.forEach(section => {
+          const rect = section.getBoundingClientRect();
+          const center = rect.top + rect.height / 2;
+          const viewportCenter = window.innerHeight / 2;
+          const offset = (center - viewportCenter) / window.innerHeight;
+          // Subtle parallax on section content
+          const content = section.querySelector('.section-container');
+          if (content) {
+            content.style.transform = `translateY(${offset * -15}px)`;
+            content.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+          }
+        });
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
 })();
 
 console.log('%c👋 Welcome! %cBuilt by 鲍超亮 %c· %cbamon1026@gmail.com',
